@@ -1,6 +1,6 @@
 <?php
 
-namespace eDiasoft\Gomypay\PaymentMethods;
+use eDiasoft\Gomypay\PaymentMethods\PaymentMethod;
 
 class Barcode extends PaymentMethod
 {
