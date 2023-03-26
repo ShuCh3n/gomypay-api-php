@@ -1,6 +1,6 @@
 <?php
 
-namespace eDiasoft\Types;
+namespace eDiasoft\Gomypay\Types;
 
 class Response
 {
