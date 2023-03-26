@@ -1,18 +1,20 @@
 <?php
 
-namespace Tests\Gomypay\Api;
+namespace Tests\Gomypay\API;
 
 use Dotenv\Dotenv;
+use eDiasoft\GomypayApiClient;
+use PHPUnit\Framework\TestCase;
 
-class GomypayApiClientTest
+class GomypayApiClientTest extends TestCase
 {
-
+    protected GomypayApiClient $gomypay;
     public function __construct()
     {
         $dotenv = Dotenv::createImmutable(getcwd());
         $dotenv->load();
 
-        $this->buckaroo = new BuckarooClient($_ENV['BPE_WEBSITE_KEY'], $_ENV['BPE_SECRET_KEY']);
+        $this->gomypay = new GomypayApiClient($_ENV['GOMYPAY_CUSTOMER_ID'], $_ENV['SECRET_KEY']);
 
         parent::__construct();
     }

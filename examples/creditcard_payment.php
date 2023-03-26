@@ -1,5 +1,9 @@
 <?php
 //Login to see credentials https://n.gomypay.asia/MCLogin.aspx
+
+use eDiasoft\GomypayApiClient;
+use eDiasoft\Types\Response;
+
 $gomypay = new GomypayApiClient('CUSTOMER_ID');
 
 $creditcard = $gomypay->payWith('creditcard')->create([

@@ -1,6 +1,6 @@
 <?php
 
-namespace Types;
+namespace eDiasoft\Types;
 
 class Response
 {
