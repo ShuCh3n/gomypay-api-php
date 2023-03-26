@@ -6,7 +6,7 @@ use eDiasoft\Gomypay\Payloads\Payment;
 
 abstract class PaymentMethod implements iPaymentMethod
 {
-    protected int $Send_Type;
+    protected int $sendType;
     protected Payment $payload;
 
     public function __construct()
@@ -21,8 +21,11 @@ abstract class PaymentMethod implements iPaymentMethod
 
     public function getPayload(): array
     {
-        dd($this->payload->toArray());
+        return $this->payload->toArray();
+    }
 
-        return [];
+    public function sendType(): int
+    {
+        return $this->sendType;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Gomypay\API\Payments;
 
+use eDiasoft\Gomypay\Types\Response;
 use Tests\Gomypay\API\GomypayApiClientTest;
 
 class CreditcardTest extends GomypayApiClientTest
@@ -12,7 +13,7 @@ class CreditcardTest extends GomypayApiClientTest
      */
     public function it_creates_a_creditcard_payment()
     {
-        $creditcard = $this->gomypay->payWith('creditcard')->create([
+        $response = $this->gomypay->payWith('creditcard')->create([
             'Order_No'          => 'TEST' . uniqid(), //Must be unique everytime
             'Amount'            => 1000, //Amount in TWD, must be more than 35 yuan
             'Buyer_Name'        => 'John Doe',
@@ -24,10 +25,10 @@ class CreditcardTest extends GomypayApiClientTest
             'CVV'               => '615',
             'TransMode'         => '1',
             'Installment'       => '0',
-            'Return_url'        => 'https://example.com/gomypay/return',
-            'Callback_Url'      => 'https://example.com/gomypay/callback'
-        ])->execute();
+            'Return_url'        => 'https://example2.com/gomypay/return',
+            'Callback_Url'      => 'https://example2.com/gomypay/callback'
+        ])->execute(Response::JSON);
 
-        $this->assertTrue(true);
+        $this->assertTrue($response->isSuccess());
     }
 }

@@ -11,8 +11,10 @@ use eDiasoft\Gomypay\PaymentMethods\Creditcard\Code;
 use eDiasoft\Gomypay\PaymentMethods\Creditcard\Creditcard;
 use eDiasoft\Gomypay\PaymentMethods\Creditcard\UnionPay;
 use eDiasoft\Gomypay\PaymentMethods\Creditcard\WebATM;
+use eDiasoft\Gomypay\Response\Transaction;
 use eDiasoft\Gomypay\Types\Http;
 use eDiasoft\Gomypay\Types\PaymentMethods;
+use eDiasoft\Gomypay\Types\Response;
 use LinePay;
 use RegularDeducation;
 use VirtualAccount;
@@ -45,12 +47,47 @@ class PaymentFacade
         return $this;
     }
 
-    public function execute()
+    public function execute(string $responseType = 'default'): Transaction
     {
-        dd($this->paymentMethod->getPayload());
         $url = ($this->config->isLiveMode())? self::LIVE_URL : self::TEST_URL;
 
-        dd($this->httpClient->send(Http::POST, $url));
+        $response = $this->httpClient->send(
+            Http::POST, $url,
+            ['Content-Type'  => 'multipart/form-data'],
+            httpBody: $this->collectHttpBody($responseType),
+            response: Transaction::class
+        );
+
+        if($responseType == 'default' || ($responseType == Response::JSON && $this->responseIsValid($response)))
+        {
+            return $response;
+        }
+
+        throw new GomypayException('Response is not valid, wrong encryption. Please check your credentials.');
+    }
+
+    public function responseIsValid(Transaction $response): bool
+    {
+        return md5($response->get('result') . $response->get('e_orderno') . $this->config->storeId() . $response->get('e_money') . $response->get('OrderID') . $this->config->secretKey()) == $response->get('str_check');
+    }
+
+    private function collectHttpBody($response): array
+    {
+        $httpBody = array_merge($this->paymentMethod->getPayload(), [
+            'CustomerId'    => $this->config->customerId(),
+            'Send_Type'     => $this->paymentMethod->sendType()
+        ]);
+
+        $httpBody['Return_url'] = $httpBody['Return_url'] ?? $this->config->returnUrl();
+        $httpBody['Callback_Url'] = $httpBody['Callback_Url'] ?? $this->config->callbackUrl();
+
+        if($response == Response::JSON)
+        {
+            $httpBody['e_return'] = 1;
+            $httpBody['Str_Check'] = $this->config->secretKey();
+        }
+
+        return $httpBody;
     }
 
     private function setPaymentMethod(string $method): iPaymentMethod

@@ -15,7 +15,10 @@ class GomypayApiClientTest extends TestCase
         $dotenv->load();
 
         $this->gomypay = new GomypayApiClient($_ENV['GOMYPAY_CUSTOMER_ID'], $_ENV['GOMYPAY_SECRET'], [
-            'test'  => true
+            'test'              => true,
+            'store_id'          => $_ENV['GOMYPAY_STORE_ID'],
+            'returnUrl'         => 'https://example.com/gomypay/return',
+            'callbackUrl'       => 'https://example.com/gomypay/callback'
         ]);
 
         parent::__construct();

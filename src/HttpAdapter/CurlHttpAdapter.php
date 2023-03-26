@@ -4,6 +4,7 @@ namespace eDiasoft\Gomypay\HttpAdapter;
 
 use Composer\CaBundle\CaBundle;
 
+use eDiasoft\Gomypay\Response\DefaultResponse;
 use eDiasoft\Gomypay\Types\Http;
 use eDiasoft\Gomypay\Exceptions\ApiException;
 use eDiasoft\Gomypay\Exceptions\CurlConnectTimeoutException;
@@ -15,8 +16,11 @@ final class CurlHttpAdapter implements HttpAdapterInterface
     public const HTTP_NO_CONTENT = 204;
     public const MAX_RETRIES = 5;
     public const DELAY_INCREASE_MS = 1000;
-    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], string $httpBody = '')
+    private string $response;
+    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], array $httpBody = [], string $response = DefaultResponse::class)
     {
+        $this->response = $response;
+
         for ($i = 0; $i <= self::MAX_RETRIES; $i++)
         {
             usleep($i * self::DELAY_INCREASE_MS);
@@ -99,7 +103,7 @@ final class CurlHttpAdapter implements HttpAdapterInterface
             throw new ApiException("No response body found.");
         }
 
-        $body = @json_decode($response);
+        $body = @json_decode($response, true);
 
         // GUARDS
         if (json_last_error() !== JSON_ERROR_NONE)
@@ -136,7 +140,7 @@ final class CurlHttpAdapter implements HttpAdapterInterface
             throw new ApiException($message, $statusCode, $field);
         }
 
-        return $body;
+        return new $this->response($body);
     }
 
     protected function parseHeaders($headers)

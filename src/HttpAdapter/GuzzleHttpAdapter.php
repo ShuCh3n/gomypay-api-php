@@ -20,13 +20,13 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     protected ClientInterface $httpClient;
     protected Service $service;
 
-    public function __construct(ClientInterface $httpClient, Service $service)
+    public function __construct(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
         $this->service = $service;
     }
 
-    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], string $httpBody = '')
+    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], array $httpBody = [])
     {
         $headers["Accept"] = "application/vnd.saitowag.api+json;version=" . $this->service->getApiVersion();
         $headers["X-AUTH-TOKEN"] = $this->service->authenticate()->token();

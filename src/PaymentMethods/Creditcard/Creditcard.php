@@ -7,7 +7,7 @@ use eDiasoft\Gomypay\PaymentMethods\PaymentMethod;
 
 class Creditcard extends PaymentMethod
 {
-    protected int $Send_Type = 1;
+    protected int $sendType = 0;
     public function create(array|string $payload)
     {
         $this->payload = new Payment($payload);
