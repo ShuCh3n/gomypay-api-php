@@ -1,6 +1,6 @@
 <?php
 
-namespace eDiasoft\Gomypay\PaymentMethods\VirtualAccount;
+namespace eDiasoft\Gomypay\PaymentMethods\WebATM;
 
 use eDiasoft\Gomypay\PaymentMethods\PaymentMethod;
 
