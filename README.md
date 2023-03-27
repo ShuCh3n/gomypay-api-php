@@ -81,8 +81,9 @@ $creditcard->execute(); //Normal execute with redirect to Gomypay page
 $creditcard->execute(Response::json); //Request json response
 ```
 ### Available payment methods ###
+
 + 信用卡 `$gomypay->payWith(PaymentMethods::CREDITCARD)`
-+ 銀聯卡 `$gomypay->payWith(PaymentMethods::UNIONPAY')`
++ 銀聯卡 `$gomypay->payWith(PaymentMethods::UNIONPAY)`
 + 超商條碼 `$gomypay->payWith(PaymentMethods::SPMBARCODE)`
 + WebAtm `$gomypay->payWith(PaymentMethods::WEBATM)`
 + 虛擬帳號 `$gomypay->payWith(PaymentMethods::VIRTUALACCOUNT)`
