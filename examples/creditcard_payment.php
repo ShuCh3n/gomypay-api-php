@@ -4,7 +4,12 @@
 use eDiasoft\GomypayApiClient;
 use eDiasoft\Types\Response;
 
-$gomypay = new GomypayApiClient('CUSTOMER_ID');
+$gomypay = new GomypayApiClient('CUSTOMER_ID', 'SECRET_KEY', array(
+    'test'              => true,
+    'store_id'          => 'GOMYPAY_STORE_ID',
+    'returnUrl'         => 'https://example.com/gomypay/return',
+    'callbackUrl'       => 'https://example.com/gomypay/callback'
+));
 
 $creditcard = $gomypay->payWith('creditcard')->create([
     'Pay_Mode_No'    => '2',
