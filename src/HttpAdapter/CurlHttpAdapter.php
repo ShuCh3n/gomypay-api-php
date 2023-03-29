@@ -18,16 +18,16 @@ final class CurlHttpAdapter implements HttpAdapterInterface
     public const DELAY_INCREASE_MS = 1000;
     private string $response;
 
-    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], array $httpBody = [], string $response = DefaultResponse::class)
+    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], string $httpBody = null, string $responseClass = DefaultResponse::class)
     {
-        $this->response = $response;
+        $this->response = $responseClass;
 
         for ($i = 0; $i <= self::MAX_RETRIES; $i++)
         {
             usleep($i * self::DELAY_INCREASE_MS);
 
             try {
-                return $this->attemptRequest($httpMethod, $url, $headers, $httpBody);
+                return $this->attemptRequest($httpMethod, $url, $headers, $queries);
             } catch (CurlConnectTimeoutException $e) {
                 //
             }
@@ -36,7 +36,7 @@ final class CurlHttpAdapter implements HttpAdapterInterface
         throw new CurlConnectTimeoutException("Unable to connect to Gomypay. Maximum number of retries (". self::MAX_RETRIES .") reached.");
     }
 
-    protected function attemptRequest($httpMethod, $url, $headers, $httpBody)
+    protected function attemptRequest($httpMethod, $url, $headers, $queries)
     {
         $curl = curl_init($url);
 
@@ -53,15 +53,15 @@ final class CurlHttpAdapter implements HttpAdapterInterface
                 break;
             case HTTP::POST:
                 curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS,  $httpBody);
+                curl_setopt($curl, CURLOPT_POSTFIELDS,  $queries);
                 break;
             case HTTP::PATCH:
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $httpBody);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $queries);
                 break;
             case HTTP::DELETE:
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                curl_setopt($curl, CURLOPT_POSTFIELDS,  $httpBody);
+                curl_setopt($curl, CURLOPT_POSTFIELDS,  $queries);
 
                 break;
             default:
@@ -89,10 +89,10 @@ final class CurlHttpAdapter implements HttpAdapterInterface
         $statusCode = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
 
-        return $this->parseResponseBody($response, $statusCode, $httpBody);
+        return $this->parseResponseBody($response, $statusCode, $queries);
     }
 
-    protected function parseResponseBody($response, $statusCode, $httpBody)
+    protected function parseResponseBody($response, $statusCode, $queries)
     {
         if (empty($response))
         {
@@ -133,9 +133,9 @@ final class CurlHttpAdapter implements HttpAdapterInterface
                 $message .= ". Documentation: {$body->_links->documentation->href}";
             }
 
-            if ($httpBody)
+            if ($queries)
             {
-                $message .= ". Request body: {$httpBody}";
+                $message .= ". Request body: {$queries}";
             }
 
             throw new ApiException($message, $statusCode, $field);

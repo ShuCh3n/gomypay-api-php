@@ -54,8 +54,8 @@ class PaymentFacade
         $response = $this->httpClient->send(
             Http::POST, $url,
             ['Content-Type'  => 'multipart/form-data'],
-            httpBody: $this->collectHttpBody($responseType),
-            response: Transaction::class
+            $this->collectHttpBody($responseType),
+            responseClass: Transaction::class
         );
 
         if($responseType == 'default' || ($responseType == Response::JSON && $this->responseIsValid($response)))
