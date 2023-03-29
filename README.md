@@ -42,7 +42,7 @@ Alternatively, you can manually [download](https://github.com/eDiasoft/gomypay-a
 First, you must initialize the `GomypayApiClient` class and pass the customer id into it. The secret key is optional and only required when retrieving JSON response instead of the standard redirect response. Another optional parameter is the config array, and you can set the mode (test/live) and the default return and callback URL. By default all transaction is set to live.
 
 ```php
-use eDiasoft\GomypayApiClient;
+use eDiasoft\Gomypay\GomypayApiClient;
 
 $gomypay = new GomypayApiClient('CUSTOMER_ID', 'SECRET_KEY_THIS_IS_OPTIONAL', array(
     'test'              => true, //This will change the transaction to test.
