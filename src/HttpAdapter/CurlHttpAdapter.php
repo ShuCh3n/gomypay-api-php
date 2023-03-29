@@ -17,6 +17,7 @@ final class CurlHttpAdapter implements HttpAdapterInterface
     public const MAX_RETRIES = 5;
     public const DELAY_INCREASE_MS = 1000;
     private string $response;
+
     public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], array $httpBody = [], string $response = DefaultResponse::class)
     {
         $this->response = $response;
