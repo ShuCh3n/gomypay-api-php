@@ -3,6 +3,8 @@
 namespace eDiasoft\Gomypay\HttpAdapter;
 
 use Composer\CaBundle\CaBundle;
+use eDiasoft\Gomypay\Exceptions\ApiException;
+use eDiasoft\Gomypay\Response\DefaultResponse;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Client;
@@ -18,20 +20,18 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
     public const HTTP_NO_CONTENT = 204;
 
     protected ClientInterface $httpClient;
-    protected Service $service;
+    private string $response;
 
     public function __construct(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
-        $this->service = $service;
     }
 
-    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], array $httpBody = [])
+    public function send(string $httpMethod, string $url, array $headers = [], array $queries = [], string $httpBody = null, string $responseClass = DefaultResponse::class)
     {
-        $headers["Accept"] = "application/vnd.saitowag.api+json;version=" . $this->service->getApiVersion();
-        $headers["X-AUTH-TOKEN"] = $this->service->authenticate()->token();
-
         $request = new Request($httpMethod, $url, $headers, $httpBody);
+
+        $this->response = $responseClass;
 
         try {
             $response = $this->httpClient->send($request, [
@@ -59,7 +59,7 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
             throw new ApiException("No response body found.");
         }
 
-        $object = @json_decode($body);
+        $object = @json_decode($body, true);
 
         if(isset($object->data->error))
         {
@@ -71,10 +71,10 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
             throw new ApiException("Unable to decode Gomypay response: '{$body}'.");
         }
 
-        return $object;
+        return new $this->response($object);
     }
 
-    public static function createDefault(Service $service)
+    public static function createDefault()
     {
         $retryMiddlewareFactory = new GuzzleRetryMiddlewareFactory;
         $handlerStack = HandlerStack::create();
@@ -87,6 +87,6 @@ class GuzzleHttpAdapter implements HttpAdapterInterface
             'handler' => $handlerStack,
         ]);
 
-        return new GuzzleHttpAdapter($client, $service);
+        return new GuzzleHttpAdapter($client);
     }
 }
