@@ -23,7 +23,7 @@ To use the Gomypay API client, the following things are required:
 + Up-to-date OpenSSL (or other SSL/TLS toolkit)
 
 ## Composer Installation ##
-By far the easiest way to install the Tyre24 API client is to require it with [Composer](http://getcomposer.org/doc/00-intro.md).
+By far the easiest way to install the Gomypay API client is to require it with [Composer](http://getcomposer.org/doc/00-intro.md).
 
     $ composer require ediasoft/gomypay-api-php:^1.0
 

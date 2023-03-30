@@ -6,18 +6,18 @@ use eDiasoft\Gomypay\Config\Config;
 use eDiasoft\Gomypay\Exceptions\GomypayException;
 use eDiasoft\Gomypay\HttpAdapter\HttpAdapterInterface;
 use eDiasoft\Gomypay\HttpAdapter\HttpAdapterPicker;
-use eDiasoft\Gomypay\PaymentMethods\Creditcard\Barcode;
-use eDiasoft\Gomypay\PaymentMethods\Creditcard\Code;
 use eDiasoft\Gomypay\PaymentMethods\Creditcard\Creditcard;
-use eDiasoft\Gomypay\PaymentMethods\Creditcard\UnionPay;
-use eDiasoft\Gomypay\PaymentMethods\Creditcard\WebATM;
+use eDiasoft\Gomypay\PaymentMethods\LinePay\LinePay;
+use eDiasoft\Gomypay\PaymentMethods\RegularDeduction\RegularDeduction;
+use eDiasoft\Gomypay\PaymentMethods\Supermarket\Barcode;
+use eDiasoft\Gomypay\PaymentMethods\Supermarket\Code;
+use eDiasoft\Gomypay\PaymentMethods\UnionPay\UnionPay;
+use eDiasoft\Gomypay\PaymentMethods\VirtualAccount\VirtualAccount;
+use eDiasoft\Gomypay\PaymentMethods\WebATM\WebATM;
 use eDiasoft\Gomypay\Response\Transaction;
 use eDiasoft\Gomypay\Types\Http;
 use eDiasoft\Gomypay\Types\PaymentMethods;
 use eDiasoft\Gomypay\Types\Response;
-use LinePay;
-use RegularDeducation;
-use VirtualAccount;
 
 class PaymentFacade
 {
@@ -54,7 +54,7 @@ class PaymentFacade
         $response = $this->httpClient->send(
             Http::POST, $url,
             ['Content-Type'  => 'multipart/form-data'],
-            $this->collectHttpBody($responseType),
+            $this->collectQueries($responseType),
             responseClass: Transaction::class
         );
 
@@ -71,23 +71,23 @@ class PaymentFacade
         return md5($response->get('result') . $response->get('e_orderno') . $this->config->storeId() . $response->get('e_money') . $response->get('OrderID') . $this->config->secretKey()) == $response->get('str_check');
     }
 
-    private function collectHttpBody($response): array
+    private function collectQueries($response): array
     {
-        $httpBody = array_merge($this->paymentMethod->getPayload(), [
+        $queries = array_merge($this->paymentMethod->getPayload(), [
             'CustomerId'    => $this->config->customerId(),
             'Send_Type'     => $this->paymentMethod->sendType()
         ]);
 
-        $httpBody['Return_url'] = $httpBody['Return_url'] ?? $this->config->returnUrl();
-        $httpBody['Callback_Url'] = $httpBody['Callback_Url'] ?? $this->config->callbackUrl();
+        $queries['Return_url'] = $queries['Return_url'] ?? $this->config->returnUrl();
+        $queries['Callback_Url'] = $queries['Callback_Url'] ?? $this->config->callbackUrl();
 
         if($response == Response::JSON)
         {
-            $httpBody['e_return'] = 1;
-            $httpBody['Str_Check'] = $this->config->secretKey();
+            $queries['e_return'] = 1;
+            $queries['Str_Check'] = $this->config->secretKey();
         }
 
-        return $httpBody;
+        return $queries;
     }
 
     private function setPaymentMethod(string $method): iPaymentMethod
@@ -104,7 +104,7 @@ class PaymentFacade
             case PaymentMethods::VIRTUALACCOUNT:
                 return $this->paymentMethod = new VirtualAccount;
             case PaymentMethods::REGULARDEDUCTION:
-                return $this->paymentMethod = new RegularDeducation;
+                return $this->paymentMethod = new RegularDeduction;
             case PaymentMethods::SPMCODE:
                 return $this->paymentMethod = new Code;
             case PaymentMethods::LINEPAY:
