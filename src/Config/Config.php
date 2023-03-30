@@ -61,13 +61,14 @@ abstract class Config
     {
         return $this->store_id;
     }
+
     public function returnUrl(): ?string
     {
-        return $this->returnUrl;
+        return $this->returnUrl ?? null;
     }
 
     public function callbackUrl(): ?string
     {
-        return $this->callbackUrl;
+        return $this->callbackUrl ?? null;
     }
 }
