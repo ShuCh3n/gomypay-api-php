@@ -58,12 +58,17 @@ class PaymentFacade
             responseClass: Transaction::class
         );
 
-        if($responseType == 'default' || ($responseType == Response::JSON && $this->responseIsValid($response)))
+        if($responseType == Response::JSON && $response->get('result') == '1' && !$this->responseIsValid($response))
         {
-            return $response;
+            throw new GomypayException('Response is not valid, wrong encryption. Please check your credentials.');
         }
 
-        throw new GomypayException('Response is not valid, wrong encryption. Please check your credentials.');
+        if($response->get('result') == '0')
+        {
+            throw new GomypayException($response->returnMessage());
+        }
+
+        return $response;
     }
 
     public function responseIsValid(Transaction $response): bool
